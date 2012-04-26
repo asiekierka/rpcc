@@ -244,7 +244,8 @@ sub assemble_equation {
 	{
 		if($token->{type} == NUMBER)
 		{
-			emit_push($token->{data},"A");
+			emit_load($token->{data},"A");
+			emit_push("A");
 		}
 		elsif($token->{type} == A_OPERATOR)
 		{
@@ -254,8 +255,8 @@ sub assemble_equation {
 			if($token->{data} eq "+") { emit_raw("CLC"); emit_raw("ADC ".$addr); }
 			elsif($token->{data} eq "-") { emit_raw("CLC"); emit_raw("SBC ".$addr); }
 			elsif($token->{data} eq "*") { emit_raw("MUL ".$addr); }
-			elsif($token->{data} eq "/") { emit_load(0,"A"); emit_raw("TAD"); emit_raw("DIV ".$addr); }
-			elsif($token->{data} eq "%") { emit_load(0,"A"); emit_raw("TAD"); emit_raw("DIV ".$addr); emit_raw("TDA"); }
+			elsif($token->{data} eq "/") { emit_push("A"); emit_load(0,"A"); emit_raw("TAD"); emit_pop("A"); emit_raw("DIV ".$addr); }
+			elsif($token->{data} eq "%") { emit_push("A"); emit_load(0,"A"); emit_raw("TAD"); emit_pop("A"); emit_raw("DIV ".$addr); emit_raw("TDA"); }
 			elsif($token->{data} eq "^") { emit_raw("EOR ".$addr); }
 			elsif($token->{data} eq "&") { emit_raw("AND ".$addr); }
 			elsif($token->{data} eq "|") { emit_raw("ORA ".$addr); }

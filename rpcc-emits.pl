@@ -19,8 +19,7 @@ sub optimize_emits {
 		my $em2 = $emit[$i]; 
 		if($em1->{type} == PUSH && $em2->{type} == POP && $em1->{register} == $em2->{register})
 		{
-			splice(@emit,$i,1);
-			$emit[$i-1] = create_emit_load($em1->{value},$em1->{register});
+			splice(@emit,$i-1,2);
 			$i-=2;
 		}
 	}
@@ -38,7 +37,7 @@ sub output_emits {
 	foreach $em (@emit) {
 		if($em->{type} == RAW_CODE) { print OUT $em->{data}; }
 		elsif($em->{type} == LOAD) { print OUT "LD".$em->{register}." #".$em->{value}; }
-		elsif($em->{type} == PUSH) { print OUT "LD".$em->{register}." #".$em->{value}."\nPH".$em->{register}; }
+		elsif($em->{type} == PUSH) { print OUT "PH".$em->{register}; }
 		elsif($em->{type} == POP) { print OUT "PL".$em->{register}; }
 		elsif($em->{type} == STORE_REG) { print OUT "ST".$em->{register}." ".$em->{address}; }
 		elsif($em->{type} == STORE_ABS) { print OUT "LDA #".$em->{value}."\nSTA ".$em->{address}; }
@@ -81,16 +80,15 @@ sub emit_store {
 	push(@emit,create_emit_store($val,$addr));
 }
 sub create_emit_push {
-	my ($val,$reg) = @_;
+	my ($reg) = @_;
 	my $em = {};
 	$em->{type} = PUSH;
-	$em->{value} = $val;
 	$em->{register} = $reg;
 	return $em;
 }
 sub emit_push {
-	my ($val,$reg) = @_;
-	push(@emit,create_emit_push($val,$reg));
+	my ($reg) = @_;
+	push(@emit,create_emit_push($reg));
 }
 sub create_emit_pop {
 	my ($reg) = @_;
